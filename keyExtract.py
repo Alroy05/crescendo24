@@ -6,6 +6,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
+from collections import Counter
 
 # nltk.download('stopwords')
 # nltk.download('punkt')
@@ -78,26 +79,53 @@ if st.sidebar.button('Extract Keywords'):
     if model == 'Rake':
         df_keywords = extract_keywords_rake(csv_file_path)
         st.dataframe(df_keywords)  # Display the DataFrame in a tabular form
+        
         # Create a word cloud
         wordcloud = WordCloud(width = 800, height = 800, 
                         background_color ='white', 
                         stopwords = stopwords.words('english'), 
                         min_font_size = 10).generate(' '.join(df_keywords['Keyword']))
-        plt.figure(figsize = (8, 8), facecolor = None) 
-        plt.imshow(wordcloud) 
-        plt.axis("off") 
-        plt.tight_layout(pad = 0) 
-        st.pyplot(plt)
+        st.image(wordcloud.to_array(), use_column_width=True)
+        
+        # Pie chart for keyword distribution
+        keyword_counts = Counter(df_keywords['Keyword'])
+        fig, ax = plt.subplots()
+        ax.pie(keyword_counts.values(), labels=keyword_counts.keys(), autopct='%1.1f%%')
+        ax.set_title('Keyword Distribution')
+        st.pyplot(fig)
+        
+        # Frequency distribution plot
+        fig, ax = plt.subplots()
+        ax.bar(keyword_counts.keys(), keyword_counts.values())
+        ax.set_title('Frequency Distribution of Keywords')
+        ax.set_xlabel('Keyword')
+        ax.set_ylabel('Frequency')
+        ax.tick_params(axis='x', rotation=90)
+        st.pyplot(fig)
+
     else:
         df_selected_words = extract_keywords_tfidf(csv_file_path)
         st.dataframe(df_selected_words)  # Display the DataFrame in a tabular form
+        
         # Create a word cloud
         wordcloud = WordCloud(width = 800, height = 800, 
                         background_color ='white', 
                         stopwords = stopwords.words('english'), 
                         min_font_size = 10).generate(' '.join(df_selected_words['Selected Word']))
-        plt.figure(figsize = (8, 8), facecolor = None) 
-        plt.imshow(wordcloud) 
-        plt.axis("off") 
-        plt.tight_layout(pad = 0) 
-        st.pyplot(plt)
+        st.image(wordcloud.to_array(), use_column_width=True)
+        
+        # Pie chart for selected word distribution
+        selected_word_counts = Counter(df_selected_words['Selected Word'])
+        fig, ax = plt.subplots()
+        ax.pie(selected_word_counts.values(), labels=selected_word_counts.keys(), autopct='%1.1f%%')
+        ax.set_title('Selected Word Distribution')
+        st.pyplot(fig)
+        
+        # Frequency distribution plot
+        fig, ax = plt.subplots()
+        ax.bar(selected_word_counts.keys(), selected_word_counts.values())
+        ax.set_title('Frequency Distribution of Selected Words')
+        ax.set_xlabel('Selected Word')
+        ax.set_ylabel('Frequency')
+        ax.tick_params(axis='x', rotation=90)
+        st.pyplot(fig)
